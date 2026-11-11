@@ -1,7 +1,7 @@
 # Nanotec fork of KickCAT
 
 This repository is a fork of [leducp/KickCAT](https://github.com/leducp/KickCAT), maintained by
-Nanotec Electronic GmbH & Co. KG. Nanotec uses the KickCAT EtherCAT master stack in its software
+Nanotec Electronic GmbH. Nanotec uses the KickCAT EtherCAT master stack in its software
 (NanoLib). KickCAT is licensed under CeCILL-C, see [LICENSE](LICENSE); the changes made in this fork
 are published here under the same licence.
 
