@@ -26,7 +26,7 @@ These tags are never moved or deleted, so the source of a shipped revision stays
 
 | Topic branch | Change | Offered upstream |
 |---|---|---|
-| – | No changes to KickCAT sources yet. | – |
+| `msvc-portability` | The headers and sources of the master library build with MSVC: `kickcat/packed.h` (`KICKCAT_PACKED_BEGIN`/`KICKCAT_PACKED_END`) replaces `__attribute__((__packed__))`, size checks for the packed structures; `FoE::opcode::ERROR` renamed to `FoE::opcode::ERR` and the parameter `interface` renamed to `ifname` (both names are macros of the Windows API); `DOMAIN` macro of the MSVC `<math.h>` undefined in `CoE/OD.h`; `sleep()` without `clock_nanosleep()` in `OS/Windows/Time.cc`. | Not yet |
 
 ## Updating from upstream
 
