@@ -255,7 +255,9 @@ namespace kickcat
         void buildFrames();
         void readMappedPDO(Slave& slave, uint16_t index);
         void configureFMMUs();
+        void addFMMUConfiguration(Slave& slave);                         // queue the process data SM and FMMU of one slave
         void configureMailboxFMMUs();
+        void addMailboxFMMUConfiguration(Slave const* slave = nullptr);  // queue the mailbox status FMMUs of one slave (nullptr: all)
 
         // DC helpers
         void fetchReceivedTimes();
