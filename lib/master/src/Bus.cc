@@ -297,9 +297,18 @@ namespace kickcat
         broadcastWrite(reg::DC_TIME_FILTER, &dc_param, sizeof(dc_param));
 
         // reset ECAT Event registers
-        broadcastRead(reg::DC_LATCH0_STATUS, 1);
-        broadcastRead(reg::ESC_DL_STATUS, 1);
-        broadcastRead(reg::AL_STATUS, 1);
+        // These reads only clear latched events: an unanswered one shall not abort the reset.
+        for (uint16_t event_register : {reg::DC_LATCH0_STATUS, reg::ESC_DL_STATUS, reg::AL_STATUS})
+        {
+            try
+            {
+                broadcastRead(event_register, 1);
+            }
+            catch (std::exception const& e)
+            {
+                bus_warning("ECAT event register 0x%04x not read: %s\n", event_register, e.what());
+            }
+        }
 
         // PDIO watchdogs
         nanoseconds const precision = 100us;
