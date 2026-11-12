@@ -297,9 +297,18 @@ namespace kickcat
         broadcastWrite(reg::DC_TIME_FILTER, &dc_param, sizeof(dc_param));
 
         // reset ECAT Event registers
-        broadcastRead(reg::DC_LATCH0_STATUS, 1);
-        broadcastRead(reg::ESC_DL_STATUS, 1);
-        broadcastRead(reg::AL_STATUS, 1);
+        // These reads only clear latched events: an unanswered one shall not abort the reset.
+        for (uint16_t event_register : {reg::DC_LATCH0_STATUS, reg::ESC_DL_STATUS, reg::AL_STATUS})
+        {
+            try
+            {
+                broadcastRead(event_register, 1);
+            }
+            catch (std::exception const& e)
+            {
+                bus_warning("ECAT event register 0x%04x not read: %s\n", event_register, e.what());
+            }
+        }
 
         // PDIO watchdogs
         nanoseconds const precision = 100us;
@@ -999,7 +1008,18 @@ namespace kickcat
 
     void Bus::configureFMMUs()
     {
-        auto prepareDatagrams = [this](Slave& slave, Slave::PIMapping& mapping, SyncManager::Type type)
+        for (auto& slave : slaves_)
+        {
+            addFMMUConfiguration(slave);
+        }
+
+        link_->processDatagrams();
+    }
+
+
+    void Bus::addFMMUConfiguration(Slave& slave)
+    {
+        auto prepareDatagrams = [this, &slave](Slave::PIMapping& mapping, SyncManager::Type type)
         {
 
             if (mapping.bsize == 0)
@@ -1061,17 +1081,19 @@ namespace kickcat
             bus_info("slave %04x - size %" PRIu32 " - ladd 0x%04" PRIu32 " - paddr 0x%04x\n", slave.address, mapping.bsize, mapping.address, fmmu.physical_address);
         };
 
-        for (auto& slave : slaves_)
-        {
-            prepareDatagrams(slave, slave.input,  SyncManager::Input);
-            prepareDatagrams(slave, slave.output, SyncManager::Output);
-        }
-
-        link_->processDatagrams();
+        prepareDatagrams(slave.input,  SyncManager::Input);
+        prepareDatagrams(slave.output, SyncManager::Output);
     }
 
 
     void Bus::configureMailboxFMMUs()
+    {
+        addMailboxFMMUConfiguration();
+        link_->processDatagrams();
+    }
+
+
+    void Bus::addMailboxFMMUConfiguration(Slave const* slave)
     {
         auto process = [](DatagramHeader const*, uint8_t const*, uint16_t wkc)
         {
@@ -1093,6 +1115,11 @@ namespace kickcat
             {
                 for (auto const& entry : entries)
                 {
+                    if ((slave != nullptr) and (entry.slave != slave))
+                    {
+                        continue;
+                    }
+
                     fmmu::Register fmmu;
                     std::memset(&fmmu, 0, sizeof(fmmu::Register));
                     fmmu.logical_address    = frame.description.address + entry.byte_offset;
@@ -1135,8 +1162,6 @@ namespace kickcat
                     static_cast<uint16_t>(reg::SYNC_MANAGER_0 + reg::SM_STATS), fmmu_offset);
             }
         }
-
-        link_->processDatagrams();
     }
 
 
