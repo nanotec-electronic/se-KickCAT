@@ -28,6 +28,8 @@ These tags are never moved or deleted, so the source of a shipped revision stays
 |---|---|---|
 | `msvc-portability` | The headers and sources of the master library build with MSVC: `kickcat/packed.h` (`KICKCAT_PACKED_BEGIN`/`KICKCAT_PACKED_END`) replaces `__attribute__((__packed__))`, size checks for the packed structures; `FoE::opcode::ERROR` renamed to `FoE::opcode::ERR` and the parameter `interface` renamed to `ifname` (both names are macros of the Windows API); `DOMAIN` macro of the MSVC `<math.h>` undefined in `CoE/OD.h`; `sleep()` without `clock_nanosleep()` in `OS/Windows/Time.cc`. | Not yet |
 | `dc-format-specifiers` | `lib/master/src/dc.cc`: the DC diagnostic output prints nanosecond counts with `PRId64` instead of `%ld` (`long` has 32 bits on Windows). | Not yet |
+| `per-slave-fmmu-configuration` | `Bus`: `addFMMUConfiguration(Slave&)` queues the process data FMMUs of one slave and `addMailboxFMMUConfiguration(Slave const*)` the mailbox status FMMU of one slave (or of all slaves); `configureFMMUs()` and `configureMailboxFMMUs()` are built on them and behave as before. A master can configure the process data of a single slave, for example after the slave restarted. | Not yet |
+| `reset-slaves-tolerate-event-reads` | `Bus::resetSlaves()`: an unanswered read of one of the three event registers (`DC_LATCH0_STATUS`, `ESC_DL_STATUS`, `AL_STATUS`) is logged as a warning and no longer aborts the initialization. These reads only clear pending events. | Not yet |
 
 ## Updating from upstream
 
