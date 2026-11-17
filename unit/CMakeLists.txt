@@ -36,6 +36,7 @@ add_executable(kickcat_unit src/adler32_sum-t.cc
                             src/CoE/OD-t.cc
                             src/ESI/Parser-t.cc
                             src/ESI/SIIBuilder-t.cc
+                            src/ENI/Config-t.cc
                             src/CoE/DS402StateMachine-t.cc
                             src/CoE/DS402Drive-t.cc
                             src/mailbox/request-t.cc
@@ -58,16 +59,18 @@ add_executable(kickcat_unit src/adler32_sum-t.cc
                             ${CMAKE_SOURCE_DIR}/lib/src/OS/Test/Time.cc
 )
 
-# ESI fixtures for Parser-t.cc, copied next to the test binary as a build
+# ESI/ENI fixtures for the parser tests, copied next to the test binary as a build
 # dependency so editing a fixture re-copies it without re-running CMake.
 set(KICKCAT_ESI_FIXTURES
     ${CMAKE_SOURCE_DIR}/examples/slave/xmc4800/wdc_foot/nuttx/foot.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/kickcat_esi_test_basic.xml
+    ${CMAKE_CURRENT_SOURCE_DIR}/kickcat_esi_test_1c00_backfill.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/kickcat_esi_test_complex.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/kickcat_esi_test_multi_device.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/kickcat_esi_test_sm_fmmu.xml
     ${CMAKE_SOURCE_DIR}/simulation/slave_configs/ecat402-drive.json
     ${CMAKE_SOURCE_DIR}/simulation/slave_configs/ecat402-drive.xml
+    ${CMAKE_CURRENT_SOURCE_DIR}/kickcat_eni_test_mailbox.xml
 )
 
 set(KICKCAT_ESI_FIXTURES_COPIED "")
@@ -86,6 +89,10 @@ add_dependencies(kickcat_unit kickcat_unit_fixtures)
 
 target_link_libraries(kickcat_unit kickcat GTest::gmock_main)
 
+if (ENABLE_ENI_PARSER)
+    target_sources(kickcat_unit PRIVATE src/ENI/Parser-t.cc)
+endif()
+
 # Simulation-support tests. lib/simulation is processed after unit/, so gate on
 # the build condition (not TARGET); the link resolves at generation time.
 if (ENABLE_ESI_PARSER AND BUILD_SIMULATION)
@@ -94,7 +101,7 @@ if (ENABLE_ESI_PARSER AND BUILD_SIMULATION)
     target_link_libraries(kickcat_unit kickcat_simulation)
 endif()
 
-if (WIN32)
+if (WIN32 AND NOT MSVC)
     # The exe died at load with STATUS_ENTRYPOINT_NOT_FOUND: it links against the import libraries
     # of the toolchain that built it, while the loader searches the exe's directory and PATH first
     # and can find an older libstdc++-6.dll there. Carrying those two in the binary removes the skew.
