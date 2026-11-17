@@ -20,6 +20,8 @@ set(KICKCAT_SOURCES
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CoE/mailbox/response.cc
   ${CMAKE_CURRENT_SOURCE_DIR}/src/CoE/CiA/DS402/StateMachine.cc
 
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/ENI/Config.cc
+
   ${CMAKE_CURRENT_SOURCE_DIR}/src/EoE/protocol.cc
 
   ${CMAKE_CURRENT_SOURCE_DIR}/src/FoE/protocol.cc
@@ -78,21 +80,39 @@ elseif (WIN32)
     ${CMAKE_CURRENT_SOURCE_DIR}/src/OS/Windows/SharedMemory.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/OS/Windows/Timer.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/OS/Windows/Time.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/OS/Unix/Mutex.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/OS/Unix/ConditionVariable.cc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/OS/Windows/Filesystem.cc
   )
 
   find_package(npcap CONFIG REQUIRED)
-  set(OS_LIBRARIES npcap::npcap pthread)
+  if (MSVC)
+    # No pthread with MSVC: Mutex and ConditionVariable on the native primitives
+    list(APPEND OS_LIB_SOURCES
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/OS/Windows/Mutex.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/OS/Windows/ConditionVariable.cc
+    )
+    set(OS_LIBRARIES npcap::npcap)
+  else()
+    list(APPEND OS_LIB_SOURCES
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/OS/Unix/Mutex.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/OS/Unix/ConditionVariable.cc
+    )
+    set(OS_LIBRARIES npcap::npcap pthread)
+  endif()
+endif()
+
+if (ENABLE_ESI_PARSER OR ENABLE_ENI_PARSER)
+  find_package(tinyxml2 CONFIG REQUIRED)
+  list(APPEND OS_LIBRARIES tinyxml2::tinyxml2)
+  list(APPEND KICKCAT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/xml.cc)
 endif()
 
 if (ENABLE_ESI_PARSER)
-  find_package(tinyxml2 CONFIG REQUIRED)
   list(APPEND KICKCAT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/ESI/Parser.cc)
   list(APPEND KICKCAT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/ESI/SIIBuilder.cc)
-  list(APPEND KICKCAT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/utils/xml.cc)
-  list(APPEND OS_LIBRARIES tinyxml2::tinyxml2)
+endif()
+
+if (ENABLE_ENI_PARSER)
+  list(APPEND KICKCAT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/ENI/Parser.cc)
 endif()
 
 if (ENABLE_AF_XDP AND LINUX)
@@ -149,6 +169,12 @@ endif()
 add_library(kickcat ${KICKCAT_SOURCES} ${OS_LIB_SOURCES})
 kickcat_publish_includes(kickcat ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_definitions(kickcat PUBLIC ${OS_COMPILE_DEFS})
+if (MSVC)
+  # The headers use the alternative operator tokens (and, or, not), which MSVC only accepts in
+  # conformance mode. NOMINMAX: <windows.h> shall not define min() and max() as macros.
+  target_compile_options(kickcat PUBLIC /permissive-)
+  target_compile_definitions(kickcat PUBLIC NOMINMAX)
+endif()
 
 if (ENABLE_AF_XDP AND LINUX)
   target_sources(kickcat PRIVATE ${BPF_HDR})
