@@ -27,7 +27,6 @@ These tags are never moved or deleted, so the source of a shipped revision stays
 | Topic branch | Change | Offered upstream |
 |---|---|---|
 | `per-slave-fmmu-configuration` | `Bus`: `addFMMUConfiguration(Slave&)` queues the process data FMMUs of one slave and `addMailboxFMMUConfiguration(Slave const*)` the mailbox status FMMU of one slave (or of all slaves); `configureFMMUs()` and `configureMailboxFMMUs()` are built on them and behave as before. A master can configure the process data of a single slave, for example after the slave restarted. | Not yet |
-| `reset-slaves-tolerate-event-reads` | `Bus::resetSlaves()`: an unanswered read of one of the three event registers (`DC_LATCH0_STATUS`, `ESC_DL_STATUS`, `AL_STATUS`) is logged as a warning and no longer aborts the initialization. These reads only clear pending events. | Not yet |
 | `eeprom-fetch-without-end-marker` | `Bus::fetchEeprom()`: the read of the SII during `init()` throws when the 16 bits word address space is exhausted and a slave has not delivered the end category (blank or damaged EEPROM). Before, the address wrapped and `init()` did not return. | Not yet |
 
 ## Changes merged upstream
