@@ -27,7 +27,7 @@ These tags are never moved or deleted, so the source of a shipped revision stays
 | Topic branch | Change | Offered upstream |
 |---|---|---|
 | `per-slave-fmmu-configuration` | `Bus`: `addFMMUConfiguration(Slave&)` queues the process data FMMUs of one slave and `addMailboxFMMUConfiguration(Slave const*)` the mailbox status FMMU of one slave (or of all slaves); `configureFMMUs()` and `configureMailboxFMMUs()` are built on them and behave as before. A master can configure the process data of a single slave, for example after the slave restarted. | Not yet |
-| `eeprom-fetch-without-end-marker` | `Bus::fetchEeprom()`: the read of the SII during `init()` throws when the 16 bits word address space is exhausted and a slave has not delivered the end category (blank or damaged EEPROM). Before, the address wrapped and `init()` did not return. | Not yet |
+| `eeprom-fetch-without-end-marker` | `Bus::fetchEeprom()`: the read of the SII during `init()` throws when the 16 bits word address space is exhausted and a slave has not delivered the end category (blank or damaged EEPROM). Before, the address wrapped and `init()` did not return. | Pull request [468](https://github.com/leducp/KickCAT/pull/468) |
 
 ## Changes merged upstream
 
