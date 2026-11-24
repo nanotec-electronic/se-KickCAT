@@ -28,6 +28,7 @@ These tags are never moved or deleted, so the source of a shipped revision stays
 |---|---|---|
 | `per-slave-fmmu-configuration` | `Bus`: `addFMMUConfiguration(Slave&)` queues the process data FMMUs of one slave and `addMailboxFMMUConfiguration(Slave const*)` the mailbox status FMMU of one slave (or of all slaves); `configureFMMUs()` and `configureMailboxFMMUs()` are built on them and behave as before. A master can configure the process data of a single slave, for example after the slave restarted. | Not yet |
 | `eeprom-fetch-without-end-marker` | `Bus::fetchEeprom()`: the read of the SII during `init()` throws when the 16 bits word address space is exhausted and a slave has not delivered the end category (blank or damaged EEPROM). Before, the address wrapped and `init()` did not return. | Pull request [468](https://github.com/leducp/KickCAT/pull/468) |
+| `link-frame-length-after-throwing-write` | `Link::sendFrame()`: when the socket throws on write, the frames are cleared and the datagrams marked `SEND_ERROR` before the exception is passed on. Before, the length of the frame was left behind and the next frame was sent with both lengths, up to beyond the frame buffer. | Not yet |
 
 ## Changes merged upstream
 
