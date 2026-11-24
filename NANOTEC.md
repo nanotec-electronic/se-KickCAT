@@ -27,7 +27,6 @@ These tags are never moved or deleted, so the source of a shipped revision stays
 | Topic branch | Change | Offered upstream |
 |---|---|---|
 | `per-slave-fmmu-configuration` | `Bus`: `addFMMUConfiguration(Slave&)` queues the process data FMMUs of one slave and `addMailboxFMMUConfiguration(Slave const*)` the mailbox status FMMU of one slave (or of all slaves); `configureFMMUs()` and `configureMailboxFMMUs()` are built on them and behave as before. A master can configure the process data of a single slave, for example after the slave restarted. | Not yet |
-| `eeprom-fetch-without-end-marker` | `Bus::fetchEeprom()`: the read of the SII during `init()` throws when the 16 bits word address space is exhausted and a slave has not delivered the end category (blank or damaged EEPROM). Before, the address wrapped and `init()` did not return. | Pull request [468](https://github.com/leducp/KickCAT/pull/468) |
 | `link-frame-length-after-throwing-write` | `Link::sendFrame()`: when the socket throws on write, the frames are cleared and the datagrams marked `SEND_ERROR` before the exception is passed on. Before, the length of the frame was left behind and the next frame was sent with both lengths, up to beyond the frame buffer. | Not yet |
 
 ## Changes merged upstream
@@ -39,6 +38,7 @@ difference to upstream any more, and their topic branches were deleted after the
 |---|---|
 | The headers and sources of the master library build with MSVC: `kickcat/packed.h` (`KICKCAT_PACKED_BEGIN`/`KICKCAT_PACKED_END`) replaces `__attribute__((__packed__))`, size checks for the packed structures; `FoE::opcode::ERROR` renamed to `FoE::opcode::ERR` and the parameter `interface` renamed to `ifname` (both names are macros of the Windows API); `DOMAIN` macro of the MSVC `<math.h>` undefined in `CoE/OD.h`; `sleep()` without `clock_nanosleep()` in `OS/Windows/Time.cc`. | [leducp/KickCAT#458](https://github.com/leducp/KickCAT/pull/458) |
 | `lib/master/src/dc.cc`: the DC diagnostic output prints nanosecond counts with `PRId64` instead of `%ld` (`long` has 32 bits on Windows). | [leducp/KickCAT#457](https://github.com/leducp/KickCAT/pull/457) |
+| `Bus::fetchEeprom()`: the read of the SII during `init()` throws when the 16 bits word address space is exhausted and a slave has not delivered the end category (blank or damaged EEPROM). Before, the address wrapped and `init()` did not return. | [leducp/KickCAT#468](https://github.com/leducp/KickCAT/pull/468) |
 
 ## Updating from upstream
 
