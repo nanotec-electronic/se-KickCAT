@@ -27,6 +27,8 @@ These tags are never moved or deleted, so the source of a shipped revision stays
 | Topic branch | Change | Offered upstream |
 |---|---|---|
 | `per-slave-fmmu-configuration` | `Bus`: `addFMMUConfiguration(Slave&)` queues the process data FMMUs of one slave and `addMailboxFMMUConfiguration(Slave const*)` the mailbox status FMMU of one slave (or of all slaves); `configureFMMUs()` and `configureMailboxFMMUs()` are built on them and behave as before. A master can configure the process data of a single slave, for example after the slave restarted. | Not yet |
+| `sdo-upload-abort-when-buffer-too-small` | CoE client: a segmented SDO transfer that the client gives up while the slave still waits (upload larger than the client buffer, segment with a bad toggle bit) sends an Abort SDO Transfer request to the slave before the message ends with `COE_CLIENT_BUFFER_TOO_SMALL` or `COE_SEGMENT_BAD_TOGGLE_BIT`. CoE server: an Abort SDO Transfer request received during a segmented transfer ends that transfer. | Not yet |
+| `foe-rearm-timeout` | `AbstractMessage::restartTimeout()`: a client that could not process the mailbox for a while restarts the timeout of a running message (of the current exchange for FoE, of the whole message for SDO) before it continues, so the pause does not end the message with `TIMEDOUT`. A message that is no longer `RUNNING` keeps its status. | Not yet |
 
 ## Changes merged upstream
 
