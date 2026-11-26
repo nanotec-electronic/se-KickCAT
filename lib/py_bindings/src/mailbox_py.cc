@@ -60,6 +60,7 @@ namespace kickcat
         message_status.attr("COE_UNKNOWN_SERVICE") = MessageStatus::COE_UNKNOWN_SERVICE;
         message_status.attr("COE_CLIENT_BUFFER_TOO_SMALL") = MessageStatus::COE_CLIENT_BUFFER_TOO_SMALL;
         message_status.attr("COE_SEGMENT_BAD_TOGGLE_BIT") = MessageStatus::COE_SEGMENT_BAD_TOGGLE_BIT;
+        message_status.attr("COE_ABORT_WITHOUT_ERROR_CLASS") = MessageStatus::COE_ABORT_WITHOUT_ERROR_CLASS;
         message_status.attr("FOE_UNEXPECTED_OPCODE") = MessageStatus::FOE_UNEXPECTED_OPCODE;
         message_status.attr("FOE_PACKET_NUMBER_WRONG") = MessageStatus::FOE_PACKET_NUMBER_WRONG;
         message_status.attr("FOE_INVALID_REPLY") = MessageStatus::FOE_INVALID_REPLY;

@@ -50,6 +50,9 @@ namespace kickcat::mailbox::request
         constexpr uint32_t COE_UNKNOWN_SERVICE          = 0x102;
         constexpr uint32_t COE_CLIENT_BUFFER_TOO_SMALL  = 0x103;
         constexpr uint32_t COE_SEGMENT_BAD_TOGGLE_BIT   = 0x104;
+        // The slave aborted the transfer with a code without error class (upper 16 bits zero):
+        // taken as it is, such a code would read as one of the statuses above (0 as SUCCESS).
+        constexpr uint32_t COE_ABORT_WITHOUT_ERROR_CLASS = 0x105;
 
         constexpr uint32_t FOE_UNEXPECTED_OPCODE        = 0x201;
         constexpr uint32_t FOE_PACKET_NUMBER_WRONG      = 0x202;

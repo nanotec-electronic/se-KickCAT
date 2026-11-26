@@ -53,6 +53,7 @@ namespace kickcat::CoE
             case mailbox::request::MessageStatus::COE_UNKNOWN_SERVICE:         { return "CoE unknown service";                                         }
             case mailbox::request::MessageStatus::COE_CLIENT_BUFFER_TOO_SMALL: { return "CoE client buffer too small";                                 }
             case mailbox::request::MessageStatus::COE_SEGMENT_BAD_TOGGLE_BIT:  { return "CoE segment bad toggle bit";                                  }
+            case mailbox::request::MessageStatus::COE_ABORT_WITHOUT_ERROR_CLASS: { return "CoE abort code without error class";                        }
 
             case TOGGLE_BIT_NOT_ALTERNATED:     { return "Toggle bit not changed";                                                                     }
             case SDO_PROTOCOL_TIMEOUT:          { return "SDO protocol timeout";                                                                       }

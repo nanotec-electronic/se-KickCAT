@@ -706,6 +706,49 @@ TEST_F(CoE_Request, SDO_download_abort)
     ASSERT_EQ(0x06010000, message->status());
 }
 
+TEST_F(CoE_Request, SDO_abort_without_error_class)
+{
+    // Abort codes whose upper 16 bits are zero would otherwise read as a message status:
+    // 0 as SUCCESS, 1 as RUNNING, 2 as TIMEDOUT, 0x103 as COE_CLIENT_BUFFER_TOO_SMALL.
+    for (uint32_t code : {0x00000000u, 0x00000001u, 0x00000002u, 0x00000103u, 0x0000FFFFu})
+    {
+        int32_t data = 0;
+        uint32_t data_size = sizeof(data);
+        mailbox.createSDO(0x1018, 1, false, CoE::SDO::request::UPLOAD, &data, &data_size);
+        auto message = mailbox.send();
+
+        header->type    = mailbox::Type::CoE;
+        coe->service    = CoE::Service::SDO_REQUEST;
+        sdo->command    = CoE::SDO::request::ABORT;
+        sdo->index      = 0x1018;
+        sdo->subindex   = 1;
+        std::memcpy(payload, &code, sizeof(code));
+        ASSERT_TRUE(mailbox.receive(raw_message)) << "code " << code;
+
+        ASSERT_EQ(MessageStatus::COE_ABORT_WITHOUT_ERROR_CLASS, message->status()) << "code " << code;
+        ASSERT_EQ(sizeof(data), data_size) << "code " << code;
+    }
+}
+
+TEST_F(CoE_Request, SDO_abort_with_smallest_error_class)
+{
+    int32_t data = 0;
+    uint32_t data_size = sizeof(data);
+    mailbox.createSDO(0x1018, 1, false, CoE::SDO::request::UPLOAD, &data, &data_size);
+    auto message = mailbox.send();
+
+    uint32_t const code = 0x00010000;
+    header->type    = mailbox::Type::CoE;
+    coe->service    = CoE::Service::SDO_REQUEST;
+    sdo->command    = CoE::SDO::request::ABORT;
+    sdo->index      = 0x1018;
+    sdo->subindex   = 1;
+    std::memcpy(payload, &code, sizeof(code));
+    ASSERT_TRUE(mailbox.receive(raw_message));
+
+    ASSERT_EQ(code, message->status());
+}
+
 TEST_F(CoE_Request, SDO_timedout)
 {
     nanoseconds const TIMEOUT = 10ms;
