@@ -141,6 +141,13 @@ namespace kickcat::mailbox::request
             std::memcpy(&code, payload, sizeof(uint32_t));
             // TODO: let client display itself the message
             coe_info("Abort requested for %x:%d ! code %08" PRIx32" - %s\n", sdo->index, sdo->subindex, code, CoE::SDO::abort_to_str(code));
+            // Every abort code has an error class in its upper 16 bits (ETG.1000.6): without one
+            // the code would be taken for a status of the message, 0 for a success.
+            if ((code & 0xFFFF0000) == 0)
+            {
+                status_ = MessageStatus::COE_ABORT_WITHOUT_ERROR_CLASS;
+                return ProcessingResult::FINALIZE;
+            }
             status_ = code;
             return ProcessingResult::FINALIZE;
         }
